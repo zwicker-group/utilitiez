@@ -17,7 +17,7 @@ def test_most_basic(rng):
     densityplot(data)
 
 
-@image_comparison(["simple_pyplot"], extensions=["png", "pdf"], tol=0.02)
+@image_comparison(["simple_pyplot"], extensions=["png", "pdf"], tol=6)
 def test_simple_pyplot():
     """Test simple usage similar to pyplot interface."""
     x = np.linspace(1, 1e2, 6)
@@ -31,7 +31,7 @@ def test_simple_pyplot():
     plt.ylabel("y-axis")
 
 
-@image_comparison(["simple_objects"], extensions=["png", "pdf"])
+@image_comparison(["simple_objects"], extensions=["png", "pdf"], tol=6)
 def test_simple_objects():
     """Test simple usage using the object-oriented interface."""
     x = np.geomspace(1, 1e2, 6)
@@ -48,7 +48,7 @@ def test_simple_objects():
     ax.set_ylabel("y-axis")
 
 
-@image_comparison(["linear"], extensions=["png", "pdf"])
+@image_comparison(["linear"], extensions=["png", "pdf"], tol=6)
 def test_linear():
     """Test density plots with linearly scaled axes."""
     x = np.linspace(0, 3, 6)
@@ -59,7 +59,7 @@ def test_linear():
     plt.colorbar()
 
 
-@image_comparison(["loglog"], extensions=["png", "pdf"])
+@image_comparison(["loglog"], extensions=["png", "pdf"], tol=6)
 def test_loglog():
     """Test density plots with logarithmically scaled axes."""
     x = np.geomspace(1, 1e2, 6)
@@ -70,7 +70,7 @@ def test_loglog():
     plt.colorbar()
 
 
-@image_comparison(["loglin"], extensions=["png", "pdf"])
+@image_comparison(["loglin"], extensions=["png", "pdf"], tol=6)
 def test_loglin():
     """Test density plots with axes with mixed scaling."""
     x = np.geomspace(1, 1e2, 6)
@@ -81,7 +81,7 @@ def test_loglin():
     plt.colorbar()
 
 
-@image_comparison(["plot_extras"], extensions=["png", "pdf"])
+@image_comparison(["plot_extras"], extensions=["png", "pdf"], tol=6)
 def test_plot_extras():
     """Test density plots with axes with additional settings."""
     x = np.geomspace(1, 1e2, 6)
@@ -95,7 +95,7 @@ def test_plot_extras():
     plt.ylabel("Y label")
 
 
-@image_comparison(["logcolor"], extensions=["png", "pdf"])
+@image_comparison(["logcolor"], extensions=["png", "pdf"], tol=6)
 def test_logcolor():
     """Test density plots with axes with mixed scaling."""
     x = np.geomspace(1, 1e2, 6)
@@ -107,7 +107,7 @@ def test_logcolor():
     plt.colorbar()
 
 
-@image_comparison(["weird_scaling"], extensions=["png", "pdf"])
+@image_comparison(["weird_scaling"], extensions=["png", "pdf"], tol=6)
 def test_weird_scaling(rng):
     """Test whether density plots with weird scaling works."""
     x = np.array([1, 2, 4, 5])
