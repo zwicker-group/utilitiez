@@ -38,7 +38,7 @@ jobs:
           name: result_images-${{ matrix.os }}-${{ matrix.python-version }}
           path: result_images
 
-    # - name: Test types with mypy
-    #   continue-on-error: true
-    #   run: |
-    #     python -m mypy --config-file pyproject.toml --pretty --package modelrunner
+    - name: Test types with mypy
+      continue-on-error: true
+      run: |
+        python -m mypy --config-file pyproject.toml --pretty --package tools
