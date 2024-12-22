@@ -65,7 +65,7 @@ def set_axis_ticks(
     if len(x) < maxnum:
         axis.set_major_locator(ticker.FixedLocator(x))
         if scale == "log":
-            axis.set_minor_locator(ticker.AutoMinorLocator())
+            axis.set_minor_locator(ticker.LogLocator(subs="auto"))
             axis.set_major_formatter(
                 ticker.LogFormatterMathtext(minor_thresholds=(np.inf, np.inf))
             )
