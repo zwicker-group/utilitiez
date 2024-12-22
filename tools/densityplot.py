@@ -15,9 +15,7 @@ from numpy.typing import ArrayLike
 ScaleType = Literal["linear", "log", "general"]
 
 
-def get_scale(
-    x: ArrayLike,
-) -> tuple[ScaleType, tuple[float, float], np.ndarray]:
+def get_scale(x: np.ndarray) -> tuple[ScaleType, np.ndarray]:
     """Determine the scale associated with numbers in an array.
 
     Args:
@@ -25,7 +23,7 @@ def get_scale(
             Positions along the axes where data points are specified
 
     Returns:
-        tuple giving the scales, the extent of the axes, and coordinates for quads
+        tuple giving the scales and coordinates for quads
     """
     # check whether the data is scaled linearly
     x_d = x[1:] - x[:-1]
@@ -48,7 +46,7 @@ def get_scale(
 
 
 def set_axis_ticks(
-    axis: axis.Axis, scale: ScaleType, x: ArrayLike, *, maxnum: int = 5
+    axis: axis.Axis, scale: ScaleType, x: np.ndarray, *, maxnum: int = 5
 ) -> None:
     """Set the major and minor ticks on a given axis.
 
@@ -63,7 +61,7 @@ def set_axis_ticks(
             Maximal length of `x`, so that all ticks are set. Default is 5.
     """
     if len(x) < maxnum:
-        axis.set_major_locator(ticker.FixedLocator(x))
+        axis.set_major_locator(ticker.FixedLocator(list(x)))
         if scale == "log":
             axis.set_minor_locator(ticker.LogLocator(subs="auto"))
             axis.set_major_formatter(
