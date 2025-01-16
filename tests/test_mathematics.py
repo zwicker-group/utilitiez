@@ -60,7 +60,7 @@ def test_random_uniform_fixed_sum(dim, jit):
 def test_random_uniform_fixed_sum_dist(jit):
     """Test distribution of get_uniform_random_composition."""
     f = do_jit(random_uniform_fixed_sum, jit)
-    xs = np.array([f(3) for _ in range(1000)])
+    xs = np.array([f(3) for _ in range(10000)])
     # test that all variables have similar
     assert stats.ks_2samp(xs[:, 0], xs[:, 1]).pvalue > 0.05
     assert stats.ks_2samp(xs[:, 0], xs[:, 2]).pvalue > 0.05
