@@ -1,1 +1,3 @@
 matplotlib
+numba
+numpy

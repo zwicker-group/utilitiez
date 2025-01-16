@@ -24,7 +24,7 @@ classifiers = [
 ]
 
 # Requirements for setuptools
-dependencies = ["matplotlib>=3.10", "numpy>=1.22"]
+dependencies = ["matplotlib>=3.10", "numba>=0.45", "numpy>=1.22"]
 
 # [project.urls]
 # homepage = "https://github.com/zwicker-group/py-pde"
