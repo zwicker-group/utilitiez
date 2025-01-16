@@ -50,18 +50,25 @@ def test_xlogx(jit):
 @pytest.mark.parametrize("dim", [1, 2, 3])
 def test_random_uniform_fixed_sum(dim, jit):
     """Test get_uniform_random_composition function."""
+    # get some samples
     f = do_jit(random_uniform_fixed_sum, jit)
-    xs = f(dim)
-    assert xs.shape == (dim,)
-    assert xs.sum() == pytest.approx(1)
+    xs = np.array([f(dim) for _ in range(10000)])
 
+    # check basic properties
+    assert xs.shape == (10000, dim)
+    assert np.allclose(xs.sum(axis=1), 1)
 
-@pytest.mark.parametrize("jit", [True, False])
-def test_random_uniform_fixed_sum_dist(jit):
-    """Test distribution of get_uniform_random_composition."""
-    f = do_jit(random_uniform_fixed_sum, jit)
-    xs = np.array([f(3) for _ in range(10000)])
-    # test that all variables have similar
-    assert stats.ks_2samp(xs[:, 0], xs[:, 1]).pvalue > 0.05
-    assert stats.ks_2samp(xs[:, 0], xs[:, 2]).pvalue > 0.05
-    assert stats.ks_2samp(xs[:, 1], xs[:, 2]).pvalue > 0.05
+    # check the distributions agains the expectations
+    if dim == 1:
+        np.testing.assert_allclose(xs, 1)
+    elif dim == 2:
+        cdf = stats.uniform.cdf
+        assert stats.ks_1samp(xs[:, 0], cdf).pvalue > 0.01
+        assert stats.ks_1samp(xs[:, 1], cdf).pvalue > 0.01
+    elif dim == 3:
+        cdf = stats.triang(0).cdf
+        assert stats.ks_1samp(xs[:, 0], cdf).pvalue > 0.01
+        assert stats.ks_1samp(xs[:, 1], cdf).pvalue > 0.01
+        assert stats.ks_1samp(xs[:, 2], cdf).pvalue > 0.01
+    else:
+        raise NotImplementedError("Check not implemented for dim>3")
