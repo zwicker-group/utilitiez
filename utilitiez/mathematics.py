@@ -77,3 +77,23 @@ def xlogx_ol(x):
 
     else:
         raise TypingError("Only accepts numbers or NumPy ndarray")
+
+
+@register_jitable
+def random_uniform_fixed_sum(dim: int) -> np.ndarray:
+    """Sample uniformly distributed positive random numbers adding to 1.
+
+    Args:
+        dim (int): the number of values to return
+
+    Returns:
+        An array with `dim` random positive fractions that add to 1
+    """
+    xs = np.empty(dim)
+    x_max = 1.0
+    for d in range(dim - 1):
+        x = np.random.beta(1, dim - d - 1) * x_max
+        x_max -= x
+        xs[d] = x
+    xs[-1] = 1 - xs[:-1].sum()
+    return xs
