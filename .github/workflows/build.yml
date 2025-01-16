@@ -41,4 +41,4 @@ jobs:
     - name: Test types with mypy
       continue-on-error: true
       run: |
-        python -m mypy --config-file pyproject.toml --pretty --package tools
+        python -m mypy --config-file pyproject.toml --pretty --package utilitiez

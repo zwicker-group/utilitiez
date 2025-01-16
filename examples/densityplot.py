@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-
-from tools import densityplot
+from utilitiez import densityplot
 
 x = np.geomspace(1, 1e2, 6)
 y = np.linspace(0, 9, 4)

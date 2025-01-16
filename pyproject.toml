@@ -1,6 +1,6 @@
 [project]
-name = "py-tools"
-description = "Python tools for internal use"
+name = "utilitiez"
+description = "Miscellaneous python utilities"
 authors = [
     {name = "David Zwicker", email="david.zwicker@ds.mpg.de"}
 ]
@@ -43,11 +43,11 @@ include-package-data = true
 zip-safe = false  # required for mypy to find the py.typed file
 
 [tool.setuptools.packages.find]
-include = ["tools*"]
+include = ["utilitiez*"]
 namespaces = false
 
 [tool.setuptools_scm]
-write_to = "tools/_version.py"
+write_to = "utilitiez/_version.py"
 
 [tool.ruff]
 target-version = "py39"
@@ -82,15 +82,15 @@ ignore = ["B007", "B027", "B028", "F401", "F403", "SIM108", "ISC001", "PT006", "
 section-order = ["future", "standard-library", "third-party", "first-party", "self", "local-folder"]
 
 [tool.ruff.lint.isort.sections]
-self = ["tools", "fixtures"]
+self = ["utilitiez", "fixtures"]
 
 [tool.black]
 target_version = ["py39"]
 
 [tool.isort]
 profile = "black"
-src_paths = ["tools", "examples", "scripts", "tests"]
-known_self = ["tools", "fixtures"]
+src_paths = ["utilitiez", "examples", "scripts", "tests"]
+known_self = ["utilitiez", "fixtures"]
 sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "SELF", "LOCALFOLDER"]
 
 [tool.pytest.ini_options]

@@ -8,7 +8,7 @@ import numpy as np
 from matplotlib import colors
 from matplotlib.testing.decorators import image_comparison
 
-from tools import densityplot
+from utilitiez import densityplot
 
 
 def test_most_basic(rng):
