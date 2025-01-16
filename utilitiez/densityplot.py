@@ -1,5 +1,10 @@
 """Helper functions for making density plots with matplotlib.
 
+.. autosummary::
+   :nosignatures:
+
+   ~densityplot
+
 .. codeauthor:: David Zwicker <david.zwicker@ds.mpg.de>
 """
 

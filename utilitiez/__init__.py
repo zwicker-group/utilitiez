@@ -4,3 +4,4 @@
 """
 
 from .densityplot import densityplot
+from .mathematics import xlogx
