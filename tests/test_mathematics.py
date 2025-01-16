@@ -63,12 +63,12 @@ def test_random_uniform_fixed_sum(dim, jit):
         np.testing.assert_allclose(xs, 1)
     elif dim == 2:
         cdf = stats.uniform.cdf
-        assert stats.ks_1samp(xs[:, 0], cdf).pvalue > 0.01
-        assert stats.ks_1samp(xs[:, 1], cdf).pvalue > 0.01
+        assert stats.ks_1samp(xs[:, 0], cdf).statistic < 0.1
+        assert stats.ks_1samp(xs[:, 1], cdf).statistic < 0.1
     elif dim == 3:
         cdf = stats.triang(0).cdf
-        assert stats.ks_1samp(xs[:, 0], cdf).pvalue > 0.01
-        assert stats.ks_1samp(xs[:, 1], cdf).pvalue > 0.01
-        assert stats.ks_1samp(xs[:, 2], cdf).pvalue > 0.01
+        assert stats.ks_1samp(xs[:, 0], cdf).statistic < 0.1
+        assert stats.ks_1samp(xs[:, 1], cdf).statistic < 0.1
+        assert stats.ks_1samp(xs[:, 2], cdf).statistic < 0.1
     else:
         raise NotImplementedError("Check not implemented for dim>3")
