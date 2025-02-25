@@ -37,12 +37,14 @@ def get_scale(x: np.ndarray) -> tuple[ScaleType, np.ndarray]:
         quads = np.linspace(x.min() - dx, x.max() + dx, len(x) + 1)
         return "linear", quads
 
-    # check whether the data is scaled logarithmically
-    x_d = x[1:] / x[:-1]
-    if np.allclose(x_d, x_d.mean()):
-        dx = np.sqrt(x_d.mean())
-        quads = np.geomspace(x.min() / dx, x.max() * dx, len(x) + 1)
-        return "log", quads
+    if np.all(x > 0) or np.all(x < 0):
+        # data could be on logarithmic scale => check ratios
+        x_log = np.log(np.abs(x))
+        x_d = x_log[1:] - x_log[:-1]
+        if np.allclose(x_d, x_d.mean()):
+            dx = np.exp(x_d.mean() / 2)
+            quads = np.geomspace(x.min() / dx, x.max() * dx, len(x) + 1)
+            return "log", quads
 
     x_ = (x[1:] + x[:-1]) / 2  # get mid points
     quads = np.r_[2 * x[0] - x_[0], x_, 2 * x[-1] - x_[-1]]  # add outer points
@@ -131,7 +133,7 @@ def densityplot(
 
     # check consistency of inputs
     if data.shape != (len(x), len(y)):
-        raise ValueError("`data` must have shape (len(x), len(y))")
+        raise ValueError(f"`data` must have shape ({len(x)}, {len(y)})")
 
     # get the types of the axes and additional properties
     x_scale, x_quads = get_scale(x)
