@@ -9,6 +9,22 @@ from matplotlib import colors
 from matplotlib.testing.decorators import image_comparison
 
 from utilitiez import densityplot
+from utilitiez.densityplot import get_scale
+
+
+def test_get_scale():
+    """Test the get_scale function."""
+    scale, quads = get_scale(np.linspace(1 / 8, 7 / 8, 4))
+    assert scale == "linear"
+    np.testing.assert_allclose(quads, np.linspace(0, 1, 5))
+    assert get_scale(np.linspace(12.4, 6, 3))[0] == "linear"
+
+    assert get_scale(np.geomspace(12.4, 6, 3))[0] == "log"
+    assert get_scale(np.geomspace(3, 5, 3))[0] == "log"
+    assert get_scale(np.geomspace(-3, -5, 3))[0] == "log"
+    assert get_scale(np.geomspace(-13, -5.5, 3))[0] == "log"
+
+    assert get_scale(np.array([1, 3, 6, 10]))[0] == "general"
 
 
 def test_most_basic(rng):
