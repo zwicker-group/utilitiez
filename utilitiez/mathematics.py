@@ -49,13 +49,13 @@ def xlogx(x: ArrayLike | float) -> ArrayLike | float:
         array or float: The result
     """
     if np.isscalar(x):
-        return xlogx_scalar(x)  # type: ignore
+        return xlogx_scalar(x)
 
     x = np.asanyarray(x)
     with np.errstate(divide="ignore", invalid="ignore"):
         y = x * np.log(x)
     y[x == 0] = 0
-    return y  # type: ignore
+    return y
 
 
 @overload(xlogx)
@@ -89,7 +89,7 @@ def random_uniform_fixed_sum(dim: int) -> np.ndarray:
     Returns:
         An array with `dim` random positive fractions that add to 1
     """
-    xs = np.empty(dim)
+    xs: np.ndarray = np.empty(dim)
     x_max = 1.0
     for d in range(dim - 1):
         x = np.random.beta(1, dim - d - 1) * x_max

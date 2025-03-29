@@ -102,7 +102,9 @@ def densityplot(
             A 1D array defining y-axis values where data was sampled
         ax (:class:`matplotlib.axes.Axes`, optional):
             The axes on which to plot. If None, the current axes will be used.
-        set_ticks ()
+        set_ticks (bool):
+            Flag determining whether axis ticks should be set explicitly using
+            :func:`set_axis_ticks`.
         **kwargs
             Additional keyword arguments to pass to `pcolormesh`
 
@@ -153,8 +155,8 @@ def densityplot(
     # scale the axes correctly
     plt_ax.set_xscale("linear" if x_scale == "general" else x_scale)
     plt_ax.set_yscale("linear" if y_scale == "general" else y_scale)
-    plt_ax.set_xlim(x_quads[0], x_quads[-1])
-    plt_ax.set_ylim(y_quads[0], y_quads[-1])
+    plt_ax.set_xlim(x_quads[0], x_quads[-1])  # type: ignore
+    plt_ax.set_ylim(y_quads[0], y_quads[-1])  # type: ignore
     if set_ticks:
         set_axis_ticks(plt_ax.xaxis, x_scale, x)
         set_axis_ticks(plt_ax.yaxis, y_scale, y)
