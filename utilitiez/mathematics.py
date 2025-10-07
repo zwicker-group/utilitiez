@@ -80,20 +80,23 @@ def xlogx_ol(x):
 
 
 @register_jitable
-def random_uniform_fixed_sum(dim: int) -> np.ndarray:
+def random_uniform_fixed_sum(dim: int, size: int = 1) -> np.ndarray:
     """Sample uniformly distributed positive random numbers adding to 1.
 
     Args:
         dim (int): the number of values to return
+        size (int): the number of samples to return
 
     Returns:
-        An array with `dim` random positive fractions that add to 1
+        An array of shape (size, dim). It contains `size` samples of arrays of `dim` random positive fractions that add to 1
     """
-    xs: np.ndarray = np.empty(dim)
-    x_max = 1.0
+    xs: np.ndarray = np.empty((size, dim))
+    x_max = np.ones(size)
     for d in range(dim - 1):
-        x = np.random.beta(1, dim - d - 1) * x_max
+        x = np.random.beta(1, dim - d - 1, size) * x_max
         x_max -= x
-        xs[d] = x
-    xs[-1] = 1 - xs[:-1].sum()
+        xs[:, d] = x
+    xs[:, -1] = 1 - xs[:, :-1].sum(axis=1)
+    if size == 1:
+        xs = xs.flatten() #make it compatible with code which expects a 1D array
     return xs
