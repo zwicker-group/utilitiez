@@ -14,7 +14,7 @@ from typing import Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib import axis, collections, image, ticker
+from matplotlib import axis, collections, ticker
 from numpy.typing import ArrayLike
 
 ScaleType = Literal["linear", "log", "general"]

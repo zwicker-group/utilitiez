@@ -13,7 +13,7 @@
 from __future__ import annotations
 
 import math
-from typing import Callable
+from typing import Any
 
 import numba as nb
 import numpy as np
@@ -79,30 +79,9 @@ def xlogx_ol(x):
         raise TypingError("Only accepts numbers or NumPy ndarray")
 
 
-
-def random_uniform_fixed_sum_multiple_samples(dim: int, size: int) -> np.ndarray:
-    """Sample uniformly distributed positive random numbers adding to 1.
-
-    Args:
-        dim (int): the number of values to return
-        size (int): the number of samples to return
-       
-    Returns:
-        An array of shape (size, dim). It contains `size` samples of arrays of `dim` random positive fractions that add to 1
-    """
-    assert size > 1, "size must be > 1. Otherwise use random_uniform_fixed_sum_single_sample() instead"
-
-    xs: np.ndarray = np.empty((size, dim))
-    x_max = np.ones(size)
-    for d in range(dim - 1):
-        x = np.random.beta(1, dim - d - 1, size) * x_max
-        x_max -= x
-        xs[:, d] = x
-    xs[:, -1] = 1 - xs[:, :-1].sum(axis=1)
-   
-    return xs
-
-def random_uniform_fixed_sum_single_sample(dim: int) -> np.ndarray:
+def _random_uniform_fixed_sum_single_sample(
+    dim: int,
+) -> np.ndarray[Any, np.dtype[np.double]]:
     """Sample uniformly distributed positive random numbers adding to 1.
 
     Args:
@@ -111,7 +90,7 @@ def random_uniform_fixed_sum_single_sample(dim: int) -> np.ndarray:
     Returns:
         An array with `dim` random positive fractions that add to 1
     """
-    xs: np.ndarray = np.empty(dim)
+    xs: np.ndarray[Any, np.dtype[np.double]] = np.empty(dim)
     x_max = 1.0
     for d in range(dim - 1):
         x = np.random.beta(1, dim - d - 1) * x_max
@@ -121,18 +100,77 @@ def random_uniform_fixed_sum_single_sample(dim: int) -> np.ndarray:
     return xs
 
 
-def random_uniform_fixed_sum(dim: int, size: int) -> np.ndarray:
+def _random_uniform_fixed_sum_multiple_samples(
+    dim: int, size: int
+) -> np.ndarray[Any, np.dtype[np.double]]:
     """Sample uniformly distributed positive random numbers adding to 1.
+
     Args:
         dim (int): the number of values to return
-        size (int): the number of samples to return. If size=1, a 1d array is returned, otherwise a 2d array of shape (size, dim)
+        size (int): the number of samples to return
+
+    Returns:
+        Array of shape (size, dim) with `size` samples of `dim` positive values adding to 1
     """
-    if size == 1:
-        #returns a 1d array of shape (dim)
-        return random_uniform_fixed_sum_single_sample(dim)
+    assert size > 1, (
+        "size must be > 1. Otherwise use random_uniform_fixed_sum_single_sample() instead"
+    )
+
+    xs: np.ndarray[Any, np.dtype[np.double]] = np.empty((size, dim))
+    x_max = np.ones(size)
+    for d in range(dim - 1):
+        x = np.random.beta(1, dim - d - 1, size) * x_max
+        x_max -= x
+        xs[:, d] = x
+    xs[:, -1] = 1 - xs[:, :-1].sum(axis=1)
+    return xs
+
+
+def random_uniform_fixed_sum(
+    dim: int, size: int | None = None
+) -> np.ndarray[Any, np.dtype[np.double]]:
+    """Sample uniformly distributed positive random numbers adding to 1.
+
+    Args:
+        dim (int):
+            The number of values that sum to 1
+        size (int):
+            The number of independent samples to return. If size is `None` a 1d array of
+            numbers is returned. If size is a number the returned array has shape
+            `(size, dim)`.
+    """
+    if size is None:
+        # returns a 1d array of shape (dim)
+        return _random_uniform_fixed_sum_single_sample(dim)
     else:
-        #returns a 2d array of shape (size, dim)
-        return random_uniform_fixed_sum_multiple_samples(dim, size)
+        # returns a 2d array of shape (size, dim)
+        return _random_uniform_fixed_sum_multiple_samples(dim, size)
+
 
 @overload(random_uniform_fixed_sum)
-# ToDo: implement a numba version
+def random_uniform_fixed_sum_ol(dim, size=None):
+    """Overload `random_uniform_fixed_sum` to allow using it from numba code."""
+    if not isinstance(dim, nb.types.Integer):
+        raise TypingError("`dim` must be an integer")
+
+    single_sample = register_jitable(_random_uniform_fixed_sum_single_sample)
+
+    if size is None or isinstance(size, nb.types.NoneType):
+        # return compiled version of a single sample
+
+        def impl(dim, size=None):
+            return single_sample(dim)
+
+    elif isinstance(size, nb.types.Integer):
+        # return compiled version making many samples
+
+        def impl(dim, size=None):
+            out = np.empty((size, dim))
+            for i in nb.prange(size):
+                out[i, :] = single_sample(dim)
+            return out
+
+    else:
+        raise TypingError("`size` must be integer or None")
+
+    return impl
