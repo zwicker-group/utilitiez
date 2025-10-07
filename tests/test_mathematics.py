@@ -7,17 +7,18 @@ import numba as nb
 import numpy as np
 import pytest
 from scipy import stats
+import os
+import importlib.util
 
 from utilitiez import random_uniform_fixed_sum, xlogx
+
 
 
 def do_jit(func, jit=True):
     """Return a jitted version of a function."""
     if jit:
-
-        @nb.njit
-        def f(x):
-            return func(x)
+        jitted_func = nb.njit(func)
+        return jitted_func
     else:
         f = func
 
@@ -48,27 +49,46 @@ def test_xlogx(jit):
 
 @pytest.mark.parametrize("jit", [True, False])
 @pytest.mark.parametrize("dim", [1, 2, 3])
-def test_random_uniform_fixed_sum(dim, jit):
+@pytest.mark.parametrize("size", [1, 2, 3])
+def test_random_uniform_fixed_sum(dim, jit, size, squeeze):
     """Test get_uniform_random_composition function."""
-    # get some samples
+
     f = do_jit(random_uniform_fixed_sum, jit)
-    xs = np.array([f(dim) for _ in range(10000)])
+    N = 10000
 
-    # check basic properties
-    assert xs.shape == (10000, dim)
-    assert np.allclose(xs.sum(axis=1), 1)
+    def check_distrs(xs, dim, sample_idx):
+        assert xs.ndim == 3, "Expected 3d array"
+        assert xs.shape[1] > sample_idx, "Data does not contain required length of samples"
 
-    # check the distributions agains the expectations
-    if dim == 1:
-        np.testing.assert_allclose(xs, 1)
-    elif dim == 2:
-        cdf = stats.uniform.cdf
-        assert stats.ks_1samp(xs[:, 0], cdf).statistic < 0.1
-        assert stats.ks_1samp(xs[:, 1], cdf).statistic < 0.1
-    elif dim == 3:
-        cdf = stats.triang(0).cdf
-        assert stats.ks_1samp(xs[:, 0], cdf).statistic < 0.1
-        assert stats.ks_1samp(xs[:, 1], cdf).statistic < 0.1
-        assert stats.ks_1samp(xs[:, 2], cdf).statistic < 0.1
-    else:
-        raise NotImplementedError("Check not implemented for dim>3")
+        if dim == 1:
+            np.testing.assert_allclose(xs, 1)
+        elif dim == 2:
+            cdf = stats.uniform.cdf
+            assert stats.ks_1samp(xs[:, sample_idx, 0], cdf).statistic < 0.1
+            assert stats.ks_1samp(xs[:, sample_idx, 1], cdf).statistic < 0.1
+        elif dim == 3:
+            cdf = stats.triang(0).cdf
+            assert stats.ks_1samp(xs[:, sample_idx, 0], cdf).statistic < 0.1
+            assert stats.ks_1samp(xs[:, sample_idx, 1], cdf).statistic < 0.1
+            assert stats.ks_1samp(xs[:, sample_idx, 2], cdf).statistic < 0.1
+        else:
+            raise NotImplementedError("Check not implemented for dim>3")
+
+   
+    # get some samples
+    xs_as_before = np.array([f(dim) for _ in range(N)]) #call to old function signature
+    xs_multi_sample = np.array([f(dim, size) for _ in range(N)]) #call to multiple-sample signature
+
+    #Check single sample signature call
+    assert xs_as_before.ndim == 2
+    assert xs_as_before.shape == (N, dim)
+    assert np.allclose(xs_as_before.sum(axis=-1), 1)
+    check_distrs(xs_as_before[:, None, :], dim, 0)  # add dummy sample axis
+
+    #Check multiple sample signature call
+    assert xs_multi_sample.ndim == 3
+    assert xs_multi_sample.shape == (N, size, dim)
+    assert np.allclose(xs_multi_sample.sum(axis=-1), 1)
+    for sample_idx in range(size):
+        check_distrs(xs_multi_sample, dim, sample_idx)
+

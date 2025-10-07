@@ -79,17 +79,19 @@ def xlogx_ol(x):
         raise TypingError("Only accepts numbers or NumPy ndarray")
 
 
-@register_jitable
-def random_uniform_fixed_sum(dim: int, size: int = 1) -> np.ndarray:
+
+def random_uniform_fixed_sum_multiple_samples(dim: int, size: int) -> np.ndarray:
     """Sample uniformly distributed positive random numbers adding to 1.
 
     Args:
         dim (int): the number of values to return
         size (int): the number of samples to return
-
+       
     Returns:
         An array of shape (size, dim). It contains `size` samples of arrays of `dim` random positive fractions that add to 1
     """
+    assert size > 1, "size must be > 1. Otherwise use random_uniform_fixed_sum_single_sample() instead"
+
     xs: np.ndarray = np.empty((size, dim))
     x_max = np.ones(size)
     for d in range(dim - 1):
@@ -97,6 +99,40 @@ def random_uniform_fixed_sum(dim: int, size: int = 1) -> np.ndarray:
         x_max -= x
         xs[:, d] = x
     xs[:, -1] = 1 - xs[:, :-1].sum(axis=1)
-    if size == 1:
-        xs = xs.flatten() #make it compatible with code which expects a 1D array
+   
     return xs
+
+def random_uniform_fixed_sum_single_sample(dim: int) -> np.ndarray:
+    """Sample uniformly distributed positive random numbers adding to 1.
+
+    Args:
+        dim (int): the number of values to return
+
+    Returns:
+        An array with `dim` random positive fractions that add to 1
+    """
+    xs: np.ndarray = np.empty(dim)
+    x_max = 1.0
+    for d in range(dim - 1):
+        x = np.random.beta(1, dim - d - 1) * x_max
+        x_max -= x
+        xs[d] = x
+    xs[-1] = 1 - xs[:-1].sum()
+    return xs
+
+
+def random_uniform_fixed_sum(dim: int, size: int) -> np.ndarray:
+    """Sample uniformly distributed positive random numbers adding to 1.
+    Args:
+        dim (int): the number of values to return
+        size (int): the number of samples to return. If size=1, a 1d array is returned, otherwise a 2d array of shape (size, dim)
+    """
+    if size == 1:
+        #returns a 1d array of shape (dim)
+        return random_uniform_fixed_sum_single_sample(dim)
+    else:
+        #returns a 2d array of shape (size, dim)
+        return random_uniform_fixed_sum_multiple_samples(dim, size)
+
+@overload(random_uniform_fixed_sum)
+# ToDo: implement a numba version
