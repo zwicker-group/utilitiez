@@ -13,7 +13,7 @@ from utilitiez import random_uniform_fixed_sum, xlogx
 
 @pytest.mark.parametrize("jit", [True, False])
 def test_xlogx(jit):
-    """Test xlogx function with scalar values."""
+    """Test xlogx function."""
     # prepare function
     if jit:
 
@@ -43,7 +43,7 @@ def test_xlogx(jit):
 @pytest.mark.parametrize("jit", [False, True])
 @pytest.mark.parametrize("dim", [1, 2, 3])
 def test_random_uniform_fixed_sum_single_sample(dim, jit):
-    """Test get_uniform_random_composition function."""
+    """Test random_uniform_fixed_sum function for single samples."""
     # prepare function
     if jit:
 
@@ -60,7 +60,7 @@ def test_random_uniform_fixed_sum_single_sample(dim, jit):
     assert xs.shape == (10_000, dim)
     assert np.allclose(xs.sum(axis=1), 1)
 
-    # check the distributions agains the expectations
+    # check the distributions against the expectations
     if dim == 1:
         np.testing.assert_allclose(xs, 1)
     elif dim == 2:
@@ -79,7 +79,7 @@ def test_random_uniform_fixed_sum_single_sample(dim, jit):
 @pytest.mark.parametrize("jit", [False, True])
 @pytest.mark.parametrize("dim", [1, 2, 3])
 def test_random_uniform_fixed_sum_multiple_sample(dim, jit):
-    """Test get_uniform_random_composition function."""
+    """Test random_uniform_fixed_sum function for multiple samples."""
     # prepare function
     if jit:
 
@@ -103,7 +103,7 @@ def test_random_uniform_fixed_sum_multiple_sample(dim, jit):
     assert xs.shape == (10_000, dim)
     assert np.allclose(xs.sum(axis=1), 1)
 
-    # check the distributions agains the expectations
+    # check the distributions against the expectations
     if dim == 1:
         np.testing.assert_allclose(xs, 1)
     elif dim == 2:

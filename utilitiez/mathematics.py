@@ -153,6 +153,7 @@ def random_uniform_fixed_sum_ol(dim, size=None):
     if not isinstance(dim, nb.types.Integer):
         raise nb.TypingError("`dim` must be an integer")
 
+    # compile the function getting a single sample, which we need in all cases
     single_sample = register_jitable(_random_uniform_fixed_sum_single_sample)
 
     if size is None or isinstance(size, nb.types.NoneType):
