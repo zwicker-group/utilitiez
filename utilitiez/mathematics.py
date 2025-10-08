@@ -136,6 +136,11 @@ def random_uniform_fixed_sum(
             The number of independent samples to return. If size is `None` a 1d array of
             numbers is returned. If size is a number the returned array has shape
             `(size, dim)`.
+
+    Returns:
+        np.ndarray[Any, np.dtype[np.double]]:
+            If `size` is `None`, returns a 1D array of shape `(dim,)` containing positive values that sum to 1.
+            If `size` is an integer, returns a 2D array of shape `(size, dim)` where each row contains positive values that sum to 1.
     """
     if size is None:
         # returns a 1d array of shape (dim)
