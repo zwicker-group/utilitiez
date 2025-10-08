@@ -152,9 +152,6 @@ def random_uniform_fixed_sum(
         return _random_uniform_fixed_sum_multiple_samples(dim, size)
     else:
         raise ValueError("`size` must be a positive integer or None")
-        
-
-
 @overload(random_uniform_fixed_sum)
 def random_uniform_fixed_sum_ol(dim, size=None):
     """Overload `random_uniform_fixed_sum` to allow using it from numba code."""
