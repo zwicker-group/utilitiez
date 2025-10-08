@@ -173,4 +173,5 @@ cython_debug/
 # private directories that should not appear in the repository
 result_images
 notebooks
+debug
 .vscode/settings.json
