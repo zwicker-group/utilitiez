@@ -17,7 +17,6 @@ from typing import Any
 
 import numba as nb
 import numpy as np
-from numba.core.errors import TypingError
 from numba.extending import overload, register_jitable
 from numpy.typing import ArrayLike
 
@@ -76,7 +75,7 @@ def xlogx_ol(x):
         return xlogx_impl
 
     else:
-        raise TypingError("Only accepts numbers or NumPy ndarray")
+        raise nb.TypingError("Only accepts numbers or NumPy ndarray")
 
 
 def _random_uniform_fixed_sum_single_sample(
@@ -112,9 +111,8 @@ def _random_uniform_fixed_sum_multiple_samples(
     Returns:
         Array of shape (size, dim) with `size` samples of `dim` positive values adding to 1
     """
-    assert size > 1, (
-        "size must be > 1. Otherwise use random_uniform_fixed_sum_single_sample() instead"
-    )
+    if size < 1:
+        raise ValueError("size must be positive integer")
 
     xs: np.ndarray[Any, np.dtype[np.double]] = np.empty((size, dim))
     x_max = np.ones(size)
@@ -142,16 +140,18 @@ def random_uniform_fixed_sum(
     if size is None:
         # returns a 1d array of shape (dim)
         return _random_uniform_fixed_sum_single_sample(dim)
-    else:
+    elif isinstance(size, int):
         # returns a 2d array of shape (size, dim)
         return _random_uniform_fixed_sum_multiple_samples(dim, size)
+    else:
+        raise nb.TypingError("`size` must be positive integer or None")
 
 
 @overload(random_uniform_fixed_sum)
 def random_uniform_fixed_sum_ol(dim, size=None):
     """Overload `random_uniform_fixed_sum` to allow using it from numba code."""
     if not isinstance(dim, nb.types.Integer):
-        raise TypingError("`dim` must be an integer")
+        raise nb.TypingError("`dim` must be an integer")
 
     single_sample = register_jitable(_random_uniform_fixed_sum_single_sample)
 
@@ -171,6 +171,6 @@ def random_uniform_fixed_sum_ol(dim, size=None):
             return out
 
     else:
-        raise TypingError("`size` must be integer or None")
+        raise nb.TypingError("`size` must be positive integer or None")
 
     return impl

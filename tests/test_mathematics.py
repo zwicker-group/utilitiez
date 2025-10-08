@@ -89,6 +89,13 @@ def test_random_uniform_fixed_sum_multiple_sample(dim, jit):
     else:
         f = random_uniform_fixed_sum
 
+    # simple test case
+    assert f(3, None).shape == (3,)
+    with pytest.raises(ValueError):
+        f(3, -1)
+    with pytest.raises((TypeError, nb.TypingError)):
+        f(3, "wrong")
+
     # get some samples
     xs = f(dim, size=10_000)
 
