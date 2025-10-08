@@ -6,7 +6,6 @@
    ~random_uniform_fixed_sum
    ~xlogx
 
-
 .. codeauthor:: David Zwicker <david.zwicker@ds.mpg.de>
 """
 
@@ -138,21 +137,23 @@ def random_uniform_fixed_sum(
             `(size, dim)`.
 
     Returns:
-        np.ndarray[Any, np.dtype[np.double]]:
-            If `size` is `None`, returns a 1D array of shape `(dim,)` containing positive values that sum to 1.
-            If `size` is an integer, returns a 2D array of shape `(size, dim)` where each row contains positive values that sum to 1.
+        If `size` is `None`, returns a 1D array of shape `(dim,)` containing positive
+            values that sum to 1.
+        If `size` is an integer, returns a 2D array of shape `(size, dim)` where each
+            row contains positive values that sum to 1.
     """
-    if not isinstance(size, int) and size is not None:
-        raise nb.TypingError("`size` must be integer or None")
-    elif size is not None and size <= 0:
-        raise ValueError("`size` must be a positive integer or None")
     if size is None:
         # returns a 1d array of shape (dim)
         return _random_uniform_fixed_sum_single_sample(dim)
-    else:
+
+    elif isinstance(size, int):
         # returns a 2d array of shape (size, dim)
         return _random_uniform_fixed_sum_multiple_samples(dim, size)
-    
+
+    else:
+        raise ValueError("`size` must be a positive integer or None")
+
+
 @overload(random_uniform_fixed_sum)
 def random_uniform_fixed_sum_ol(dim, size=None):
     """Overload `random_uniform_fixed_sum` to allow using it from numba code."""
