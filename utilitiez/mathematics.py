@@ -145,13 +145,11 @@ def random_uniform_fixed_sum(
     if size is None:
         # returns a 1d array of shape (dim)
         return _random_uniform_fixed_sum_single_sample(dim)
-    elif not isinstance(size, int) and size > 0:
-        raise nb.TypingError("`size` must be an integer or None")
-    elif size > 0:
+    elif not isinstance(size, int) or size <= 0:
+        raise nb.TypingError("`size` must be a positive integer or None")
+    else:
         # returns a 2d array of shape (size, dim)
         return _random_uniform_fixed_sum_multiple_samples(dim, size)
-    else:
-        raise ValueError("`size` must be a positive integer or None")
 @overload(random_uniform_fixed_sum)
 def random_uniform_fixed_sum_ol(dim, size=None):
     """Overload `random_uniform_fixed_sum` to allow using it from numba code."""
