@@ -89,11 +89,10 @@ def _random_uniform_fixed_sum_single_sample(
     Returns:
         An array with `dim` random positive fractions that add to 1
     """
-    rng = np.random.default_rng() #has random seed by default
     xs: np.ndarray[Any, np.dtype[np.double]] = np.empty(dim)
     x_max = 1.0
     for d in range(dim - 1):
-        x = rng.random.beta(1, dim - d - 1) * x_max
+        x = np.random.beta(1, dim - d - 1) * x_max
         x_max -= x
         xs[d] = x
     xs[-1] = 1 - xs[:-1].sum()
@@ -115,11 +114,10 @@ def _random_uniform_fixed_sum_multiple_samples(
     if size < 1:
         raise ValueError("size must be positive integer")
 
-    rng = np.random.default_rng() #has random seed by default
     xs: np.ndarray[Any, np.dtype[np.double]] = np.empty((size, dim))
     x_max = np.ones(size)
     for d in range(dim - 1):
-        x = rng.beta(1, dim - d - 1, size) * x_max
+        x = np.random.beta(1, dim - d - 1, size) * x_max
         x_max -= x
         xs[:, d] = x
     xs[:, -1] = 1 - xs[:, :-1].sum(axis=1)
