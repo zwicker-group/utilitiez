@@ -151,7 +151,7 @@ def random_uniform_fixed_sum(
         return _random_uniform_fixed_sum_multiple_samples(dim, size)
 
     else:
-        raise ValueError("`size` must be a positive integer or None")
+        raise TypeError("`size` must be a positive integer or None")
 
 
 @overload(random_uniform_fixed_sum)
