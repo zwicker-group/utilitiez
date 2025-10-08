@@ -145,11 +145,14 @@ def random_uniform_fixed_sum(
     if size is None:
         # returns a 1d array of shape (dim)
         return _random_uniform_fixed_sum_single_sample(dim)
-    elif isinstance(size, int):
+    elif not isinstance(size, int) and size > 0:
+        raise nb.TypingError("`size` must be an integer or None")
+    elif size > 0:
         # returns a 2d array of shape (size, dim)
         return _random_uniform_fixed_sum_multiple_samples(dim, size)
     else:
-        raise nb.TypingError("`size` must be positive integer or None")
+        raise ValueError("`size` must be a positive integer or None")
+        
 
 
 @overload(random_uniform_fixed_sum)
