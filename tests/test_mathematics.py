@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 from scipy import stats
 
-from utilitiez import random_uniform_fixed_sum, xlogx
+from utilitiez import geomspace_int, random_uniform_fixed_sum, xlogx
 
 
 @pytest.mark.parametrize("jit", [True, False])
@@ -117,3 +117,38 @@ def test_random_uniform_fixed_sum_multiple_sample(dim, jit):
         assert stats.ks_1samp(xs[:, 2], cdf).statistic < 0.1
     else:
         raise NotImplementedError("Check not implemented for dim>3")
+
+
+def test_geomspace_int():
+    """Test the `geomspace_int` function."""
+    for num in [3, 20]:
+        for a, b in [[0, 5], [1, 100]]:
+            x = geomspace_int(a, b, num)
+            assert np.issubdtype(x.dtype, np.integer)
+            assert x[0] == a
+            assert x[-1] == b
+            assert len(x) <= num
+
+    x = geomspace_int(10, 1000, 32)
+    y = np.geomspace(10, 1000, 32)
+    np.testing.assert_allclose(x - y, 0, atol=1)
+
+    assert np.issubdtype(geomspace_int(0, 1, 0).dtype, np.integer)
+    assert np.issubdtype(geomspace_int(0, 0, 10).dtype, np.integer)
+    np.testing.assert_equal(geomspace_int(0, 1, 0), np.array([]))
+    np.testing.assert_equal(geomspace_int(0, 0, 10), np.array([0]))
+    np.testing.assert_equal(geomspace_int(0, 10, 1), np.array([0]))
+    np.testing.assert_equal(geomspace_int(0, 2, 10), np.array([0, 1, 2]))
+    np.testing.assert_equal(geomspace_int(0, 20, 2), np.array([0, 20]))
+    np.testing.assert_equal(geomspace_int(0, 20, 3), np.array([0, 1, 20]))
+
+    x = geomspace_int(10, 100, 20)
+    y = geomspace_int(100, 10, 20)
+    np.testing.assert_equal(x, y[::-1])
+
+    with pytest.raises(ValueError):
+        geomspace_int(0, 1, -1)
+    with pytest.raises(ValueError):
+        geomspace_int(-1, 2)
+    with pytest.raises(ValueError):
+        geomspace_int(1, -2)
