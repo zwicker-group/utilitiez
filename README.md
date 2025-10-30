@@ -15,3 +15,4 @@ axes.
 ## Mathematical functions:
 - `xlogx` calculates $x \log(x)$ with the correct limit for $x=0$
 - `random_uniform_fixed_sum` samples uniformly distributed, positive numbers adding to 1
+- `geomspace_int` provides an (approximately) geometric sequence of integers

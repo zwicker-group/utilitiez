@@ -4,4 +4,4 @@
 """
 
 from .densityplot import densityplot
-from .mathematics import random_uniform_fixed_sum, xlogx
+from .mathematics import *

@@ -17,7 +17,7 @@ from typing import Any
 import numba as nb
 import numpy as np
 from numba.extending import overload, register_jitable
-from numpy.typing import ArrayLike
+from numpy.typing import ArrayLike, NDArray
 
 
 def xlogx_scalar(x):
@@ -182,3 +182,103 @@ def random_uniform_fixed_sum_ol(dim, size=None):
         raise nb.TypingError("`size` must be positive integer or None")
 
     return impl
+
+
+def geomspace_int(
+    start: int, end: int, num: int = 50, *, max_steps: int = 100
+) -> NDArray[np.integer]:
+    """Return integers spaced (approximately) evenly on a log scale.
+
+    Parameters:
+        start (int):
+            The starting value of the sequence.
+        final (int):
+            The final value of the sequence.
+        num (int, optional)
+            Number of samples to generate. Default is 50.
+        max_steps (int, optional)
+            The maximal number of steps of the iterative algorithm. If the algorithm
+            could not find a solution, a `RuntimeError` is raised.
+
+    Returns:
+        an ordered sequence of at most `num` integers from `start` to `end` with
+        approximately logarithmic spacing.
+    """
+    # check whether the supplied number is valid
+    num = int(num)
+    if num < 0:
+        raise ValueError(f"Number of samples, {num}, must be non-negative.")
+    if num == 0:
+        return np.array([], dtype=int)
+
+    # check corner cases
+    start = int(start)
+    end = int(end)
+    if start < 0 or end < 0:
+        raise ValueError("`start` and `end` must be positive numbers")
+    if num == 1 or start == end:
+        return np.array([start])
+
+    if start > end:
+        # inverted sequence
+        return geomspace_int(end, start, num)[::-1]
+
+    if num == 2:
+        # return end intervals, which could be inverted by above line
+        return np.array([start, end])
+
+    if num > end - start:
+        # all integers need to be returned
+        return np.arange(start, end + 1)
+
+    # calculate the maximal size of underlying logarithmic range
+    if start == 0:
+        start = 1
+        num -= 1
+        add_zero = True
+    else:
+        add_zero = False
+
+    num_max = int(
+        np.ceil((math.log(end) - math.log(start)) / (math.log(end) - math.log(end - 1)))
+    )
+    a, b = num, num_max  # interval of log-range
+    n = a
+
+    # try different log-ranges
+    for _ in range(max_steps):
+        # determine discretized logarithmic range
+        ys = np.geomspace(start, end, num=n)
+        ys = np.unique(ys.astype(int))
+        ys_len = len(ys)
+
+        if ys_len == num:
+            break  # reached correct number
+
+        if ys_len < num:
+            # n is too small
+            a = n
+            n = int(math.sqrt(n * b))
+            if a == n:
+                n += 1
+                if n == b:
+                    break
+
+        elif ys_len > num:
+            # n is too large
+            b = n
+            n = int(math.sqrt(a * n))
+            if b == n:
+                n -= 1
+                if n == a:
+                    break
+    else:
+        raise RuntimeError("Exceeded attempts")
+
+    if add_zero:
+        return np.r_[0, ys]
+    else:
+        return ys
+
+
+__all__ = ["geomspace_int", "random_uniform_fixed_sum", "xlogx"]
