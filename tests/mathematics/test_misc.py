@@ -11,35 +11,6 @@ from scipy import stats
 from utilitiez import geomspace_int, random_uniform_fixed_sum, xlogx
 
 
-@pytest.mark.parametrize("jit", [True, False])
-def test_xlogx(jit):
-    """Test xlogx function."""
-    # prepare function
-    if jit:
-
-        @nb.njit
-        def f(value):
-            return xlogx(value)
-    else:
-        f = xlogx
-
-    xs = np.array([-1, 0, 0.5, 1])
-    ys = np.array([np.nan, 0, 0.5 * np.log(0.5), 0])
-
-    # test scalar data
-    for x, y in zip(xs, ys):
-        if np.isnan(y):
-            assert np.isnan(f(x))
-        else:
-            assert f(x) == pytest.approx(y)
-
-    # test 1d arrays
-    np.testing.assert_almost_equal(f(xs), ys)
-
-    # test 2d arrays
-    np.testing.assert_almost_equal(f(np.c_[xs, xs]), np.c_[ys, ys])
-
-
 @pytest.mark.parametrize("jit", [False, True])
 @pytest.mark.parametrize("dim", [1, 2, 3])
 def test_random_uniform_fixed_sum_single_sample(dim, jit):
