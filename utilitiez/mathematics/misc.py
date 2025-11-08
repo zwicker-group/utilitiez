@@ -28,9 +28,9 @@ def geomspace_int(
     Parameters:
         start (int):
             The starting value of the sequence.
-        final (int):
+        end (int):
             The final value of the sequence.
-        num (int, optional)
+        num (int, optional):
             Number of samples to generate. Default is 50.
         max_steps (int, optional)
             The maximal number of steps of the iterative algorithm. If the algorithm

@@ -133,7 +133,7 @@ def xlogx(
     NaN or raise an error (depending on the flag `raise_error`).
 
     Args:
-        x (float or :~numpy.ndarray`):
+        x (float or :class:`~numpy.ndarray`):
             The value or array to which the function is applied
         threshold (float):
             Threshold below which the function will be linearized to extend the support
