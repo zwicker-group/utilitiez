@@ -13,6 +13,6 @@ Collection of useful python tools used in the [Zwicker group](https://zwickergro
 axes.
 
 ## Mathematical functions:
-- `xlogx` calculates $x \log(x)$ with the correct limit for $x=0$
+- `xlogx` calculates $x \log(x)$ with correct limit for $x=0$ and potential linearization
 - `random_uniform_fixed_sum` samples uniformly distributed, positive numbers adding to 1
 - `geomspace_int` provides an (approximately) geometric sequence of integers
