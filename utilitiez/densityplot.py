@@ -10,12 +10,14 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import axis, collections, ticker
-from numpy.typing import ArrayLike
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
 
 ScaleType = Literal["linear", "log", "general"]
 
@@ -114,8 +116,9 @@ def densityplot(
     """
     # check image data
     data = np.asanyarray(data)
-    if not data.ndim == 2:
-        raise TypeError("`data` must be a 2d array")
+    if data.ndim != 2:
+        msg = "`data` must be a 2d array"
+        raise TypeError(msg)
 
     # check x-axis
     if x is None:
@@ -123,7 +126,8 @@ def densityplot(
     else:
         x = np.asanyarray(x)
     if x.ndim != 1 or len(x) < 2:
-        raise TypeError("`x` must be 1d array with at least 2 entries")
+        msg = "`x` must be 1d array with at least 2 entries"
+        raise TypeError(msg)
 
     # check y-axis
     if y is None:
@@ -131,11 +135,13 @@ def densityplot(
     else:
         y = np.asanyarray(y)
     if y.ndim != 1 or len(y) < 2:
-        raise TypeError("`y` must be 1d array with at least 2 entries")
+        msg = "`y` must be 1d array with at least 2 entries"
+        raise TypeError(msg)
 
     # check consistency of inputs
     if data.shape != (len(x), len(y)):
-        raise ValueError(f"`data` must have shape ({len(x)}, {len(y)})")
+        msg = f"`data` must have shape ({len(x)}, {len(y)})"
+        raise ValueError(msg)
 
     # get the types of the axes and additional properties
     x_scale, x_quads = get_scale(x)
