@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 from scipy import stats
 
-from utilitiez import geomspace_int, random_uniform_fixed_sum, xlogx
+from utilitiez import geomspace_int, random_uniform_fixed_sum
 
 
 @pytest.mark.parametrize("jit", [False, True])
@@ -44,7 +44,8 @@ def test_random_uniform_fixed_sum_single_sample(dim, jit):
         assert stats.ks_1samp(xs[:, 1], cdf).statistic < 0.1
         assert stats.ks_1samp(xs[:, 2], cdf).statistic < 0.1
     else:
-        raise NotImplementedError("Check not implemented for dim>3")
+        msg = "Check not implemented for dim>3"
+        raise NotImplementedError(msg)
 
 
 @pytest.mark.parametrize("jit", [False, True])
@@ -87,7 +88,8 @@ def test_random_uniform_fixed_sum_multiple_sample(dim, jit):
         assert stats.ks_1samp(xs[:, 1], cdf).statistic < 0.1
         assert stats.ks_1samp(xs[:, 2], cdf).statistic < 0.1
     else:
-        raise NotImplementedError("Check not implemented for dim>3")
+        msg = "Check not implemented for dim>3"
+        raise NotImplementedError(msg)
 
 
 def test_geomspace_int():

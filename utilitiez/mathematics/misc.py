@@ -12,12 +12,14 @@
 from __future__ import annotations
 
 import math
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numba as nb
 import numpy as np
 from numba.extending import overload, register_jitable
-from numpy.typing import NDArray
+
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
 
 
 def geomspace_int(
@@ -43,7 +45,8 @@ def geomspace_int(
     # check whether the supplied number is valid
     num = int(num)
     if num < 0:
-        raise ValueError(f"Number of samples, {num}, must be non-negative.")
+        msg = f"Number of samples, {num}, must be non-negative."
+        raise ValueError(msg)
     if num == 0:
         return np.array([], dtype=int)
 
@@ -51,7 +54,8 @@ def geomspace_int(
     start = int(start)
     end = int(end)
     if start < 0 or end < 0:
-        raise ValueError("`start` and `end` must be positive numbers")
+        msg = "`start` and `end` must be positive numbers"
+        raise ValueError(msg)
     if num == 1 or start == end:
         return np.array([start])
 
@@ -109,12 +113,12 @@ def geomspace_int(
                 if n == a:
                     break
     else:
-        raise RuntimeError("Exceeded attempts")
+        msg = "Exceeded attempts"
+        raise RuntimeError(msg)
 
     if add_zero:
         return np.r_[0, ys]
-    else:
-        return ys
+    return ys
 
 
 def _random_uniform_fixed_sum_single_sample(
@@ -131,7 +135,7 @@ def _random_uniform_fixed_sum_single_sample(
     xs: np.ndarray[Any, np.dtype[np.double]] = np.empty(dim)
     x_max = 1.0
     for d in range(dim - 1):
-        x = np.random.beta(1, dim - d - 1) * x_max
+        x = np.random.beta(1, dim - d - 1) * x_max  # noqa: NPY002
         x_max -= x
         xs[d] = x
     xs[-1] = 1 - xs[:-1].sum()
@@ -148,15 +152,17 @@ def _random_uniform_fixed_sum_multiple_samples(
         size (int): the number of samples to return
 
     Returns:
-        Array of shape (size, dim) with `size` samples of `dim` positive values adding to 1
+        Array of shape (size, dim) with `size` samples of `dim` positive values adding
+        to 1
     """
     if size < 1:
-        raise ValueError("size must be positive integer")
+        msg = "size must be positive integer"
+        raise ValueError(msg)
 
     xs: np.ndarray[Any, np.dtype[np.double]] = np.empty((size, dim))
     x_max = np.ones(size)
     for d in range(dim - 1):
-        x = np.random.beta(1, dim - d - 1, size) * x_max
+        x = np.random.beta(1, dim - d - 1, size) * x_max  # noqa: NPY002
         x_max -= x
         xs[:, d] = x
     xs[:, -1] = 1 - xs[:, :-1].sum(axis=1)
@@ -186,19 +192,20 @@ def random_uniform_fixed_sum(
         # returns a 1d array of shape (dim)
         return _random_uniform_fixed_sum_single_sample(dim)
 
-    elif isinstance(size, int):
+    if isinstance(size, int):
         # returns a 2d array of shape (size, dim)
         return _random_uniform_fixed_sum_multiple_samples(dim, size)
 
-    else:
-        raise TypeError("`size` must be a positive integer or None")
+    msg = "`size` must be a positive integer or None"
+    raise TypeError(msg)
 
 
 @overload(random_uniform_fixed_sum)
 def random_uniform_fixed_sum_ol(dim, size=None):
     """Overload `random_uniform_fixed_sum` to allow using it from numba code."""
     if not isinstance(dim, nb.types.Integer):
-        raise nb.TypingError("`dim` must be an integer")
+        msg = "`dim` must be an integer"
+        raise nb.TypingError(msg)
 
     # compile the function getting a single sample, which we need in all cases
     single_sample = register_jitable(_random_uniform_fixed_sum_single_sample)
@@ -219,7 +226,8 @@ def random_uniform_fixed_sum_ol(dim, size=None):
             return out
 
     else:
-        raise nb.TypingError("`size` must be positive integer or None")
+        msg = "`size` must be positive integer or None"
+        raise nb.TypingError(msg)
 
     return impl
 

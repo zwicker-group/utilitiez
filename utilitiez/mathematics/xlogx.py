@@ -29,18 +29,17 @@ def _xlogx_diff0(x, threshold=0, raise_error=False):
     """Evaluate xlogx function for one point."""
     if x > threshold:
         return x * np.log(x)
-    elif threshold == 0:
+    if threshold == 0:
         # without linearization
         if x == 0:
             return 0.0
-        elif raise_error:
-            raise ValueError("xlogx expects non-negative values")
-        else:
-            return math.nan
-    else:
-        # with linearization
-        log_threshold = np.log(threshold)
-        return 0.5 * (x - threshold) * (x / threshold + 1) + x * log_threshold
+        if raise_error:
+            msg = "xlogx expects non-negative values"
+            raise ValueError(msg)
+        return math.nan
+    # with linearization
+    log_threshold = np.log(threshold)
+    return 0.5 * (x - threshold) * (x / threshold + 1) + x * log_threshold
 
 
 @register_jitable
@@ -48,17 +47,16 @@ def _xlogx_diff1(x, threshold=0, raise_error=False):
     """Evaluate first derivative of xlogx function for one point."""
     if x > threshold:
         return 1 + np.log(x)
-    elif threshold == 0:
+    if threshold == 0:
         # without linearization
         if x == 0:
             return -np.inf
-        elif raise_error:
-            raise ValueError("xlogx expects non-negative values")
-        else:
-            return math.nan
-    else:
-        # with linearization
-        return x / threshold + np.log(threshold)
+        if raise_error:
+            msg = "xlogx expects non-negative values"
+            raise ValueError(msg)
+        return math.nan
+    # with linearization
+    return x / threshold + np.log(threshold)
 
 
 @register_jitable
@@ -66,10 +64,9 @@ def _xlogx_diff2(x, threshold=0, raise_error=False):
     """Evaluate second derivative of xlogx function for one point."""
     if x > threshold:
         return 1 / x
-    elif threshold == 0:
+    if threshold == 0:
         return np.inf
-    else:
-        return 1 / threshold
+    return 1 / threshold
 
 
 @nb.njit
@@ -152,21 +149,21 @@ def xlogx(
     if np.isscalar(x):
         if diff == 0 or diff is None:
             return _xlogx_diff0(x, threshold, raise_error=raise_error)
-        elif diff == 1:
+        if diff == 1:
             return _xlogx_diff1(x, threshold, raise_error=raise_error)
-        elif diff == 2:
+        if diff == 2:
             return _xlogx_diff2(x, threshold, raise_error=raise_error)
-        else:
-            raise NotImplementedError("Only diff={0, 1, 2} is implemented")
+        msg = "Only diff={0, 1, 2} is implemented"
+        raise NotImplementedError(msg)
 
     if diff == 0 or diff is None:
         return _xlogx_diff0_array(x, threshold=threshold, raise_error=raise_error)
-    elif diff == 1:
+    if diff == 1:
         return _xlogx_diff1_array(x, threshold=threshold, raise_error=raise_error)
-    elif diff == 2:
+    if diff == 2:
         return _xlogx_diff2_array(x, threshold=threshold, raise_error=raise_error)
-    else:
-        raise NotImplementedError(f"diff={diff} is not implemented")
+    msg = f"diff={diff} is not implemented"
+    raise NotImplementedError(msg)
 
 
 # overload the optimized numpy xlogx function
@@ -174,15 +171,17 @@ def xlogx(
 def xlogx_ol(x, threshold=0, diff=None, raise_error=False):
     """Generator for a numba-compiled xlogx function supporting scalars and arrays."""
     if not isinstance(threshold, (int, float, nb.types.Integer, nb.types.Float)):
-        raise nb.TypingError(f"`threshold` must be a number, got {threshold.__class__}")
+        msg = f"`threshold` must be a number, got {threshold.__class__}"
+        raise nb.TypingError(msg)
     if isinstance(threshold, nb.types.Literal) and threshold.literal_value < 0:
-        raise ValueError("`threshold` must be a non-negative number")
+        msg = "`threshold` must be a non-negative number"
+        raise ValueError(msg)
     if not isinstance(diff, (nb.types.Literal, nb.types.NoneType, NoneType)):
-        raise nb.TypingError(
-            f"`diff` must be a compile-time constant, not {diff.__class__}"
-        )
+        msg = f"`diff` must be a compile-time constant, not {diff.__class__}"
+        raise nb.TypingError(msg)
     if not isinstance(diff, (int, nb.types.Integer, nb.types.NoneType, NoneType)):
-        raise nb.TypingError(f"`diff` must be an integer, not {diff.__class__}")
+        msg = f"`diff` must be an integer, not {diff.__class__}"
+        raise nb.TypingError(msg)
 
     # determine degree of differentiation
     if diff is None or isinstance(diff, nb.types.NoneType):
@@ -201,7 +200,7 @@ def xlogx_ol(x, threshold=0, diff=None, raise_error=False):
 
         return xlogx_scalar
 
-    elif isinstance(x, nb.types.Array):
+    if isinstance(x, nb.types.Array):
         # return a vectorized implementation
         impl = [_xlogx_diff0_array, _xlogx_diff1_array, _xlogx_diff2_array][diff_val]
 
@@ -210,5 +209,5 @@ def xlogx_ol(x, threshold=0, diff=None, raise_error=False):
 
         return xlogx_array
 
-    else:
-        raise nb.TypingError("Only accepts number or numpy ndarray")
+    msg = "Only accepts number or numpy ndarray"
+    raise nb.TypingError(msg)
