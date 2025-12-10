@@ -88,8 +88,8 @@ def geomspace_int(
     # try different log-ranges
     for _ in range(max_steps):
         # determine discretized logarithmic range
-        ys = np.geomspace(start, end, num=n)
-        ys = np.unique(ys.astype(int))
+        ys_float = np.geomspace(start, end, num=n)
+        ys = np.unique(ys_float.astype(int))
         ys_len = len(ys)
 
         if ys_len == num:
@@ -117,7 +117,7 @@ def geomspace_int(
         raise RuntimeError(msg)
 
     if add_zero:
-        return np.r_[0, ys]
+        return np.r_[0, ys]  # type: ignore
     return ys
 
 

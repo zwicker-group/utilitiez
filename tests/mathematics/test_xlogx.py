@@ -27,7 +27,7 @@ def test_xlogx(jit):
     ys = np.array([np.nan, 0, 0.5 * np.log(0.5), 0])
 
     # test scalar data
-    for x, y in zip(xs, ys):
+    for x, y in zip(xs, ys, strict=False):
         if np.isnan(y):
             assert np.isnan(f(x))
         else:
