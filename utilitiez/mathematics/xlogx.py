@@ -11,24 +11,24 @@
 from __future__ import annotations
 
 import math
-from typing import Union
 from typing import overload as type_overload
 
 import numba as nb
 import numpy as np
 from numba.extending import overload as numba_overload
 from numba.extending import register_jitable
-from numpy.typing import ArrayLike, NDArray
+from numpy.typing import NDArray
 
 NoneType = type(None)
-FloatOrArray = Union[float, NDArray[np.floating]]
+FloatingArray = NDArray[np.floating]
+FloatOrArray = float | FloatingArray
 
 
 @register_jitable
-def _xlogx_diff0(x, threshold=0, raise_error=False):
+def _xlogx_diff0(x: float, threshold: float = 0, raise_error: bool = False) -> float:
     """Evaluate xlogx function for one point."""
     if x > threshold:
-        return x * np.log(x)
+        return x * np.log(x)  # type: ignore
     if threshold == 0:
         # without linearization
         if x == 0:
@@ -39,14 +39,14 @@ def _xlogx_diff0(x, threshold=0, raise_error=False):
         return math.nan
     # with linearization
     log_threshold = np.log(threshold)
-    return 0.5 * (x - threshold) * (x / threshold + 1) + x * log_threshold
+    return 0.5 * (x - threshold) * (x / threshold + 1) + x * log_threshold  # type: ignore
 
 
 @register_jitable
-def _xlogx_diff1(x, threshold=0, raise_error=False):
+def _xlogx_diff1(x: float, threshold: float = 0, raise_error: bool = False) -> float:
     """Evaluate first derivative of xlogx function for one point."""
     if x > threshold:
-        return 1 + np.log(x)
+        return 1 + np.log(x)  # type: ignore
     if threshold == 0:
         # without linearization
         if x == 0:
@@ -56,11 +56,11 @@ def _xlogx_diff1(x, threshold=0, raise_error=False):
             raise ValueError(msg)
         return math.nan
     # with linearization
-    return x / threshold + np.log(threshold)
+    return x / threshold + np.log(threshold)  # type: ignore
 
 
 @register_jitable
-def _xlogx_diff2(x, threshold=0, raise_error=False):
+def _xlogx_diff2(x: float, threshold: float = 0, raise_error: bool = False) -> float:
     """Evaluate second derivative of xlogx function for one point."""
     if x > threshold:
         return 1 / x
@@ -70,7 +70,9 @@ def _xlogx_diff2(x, threshold=0, raise_error=False):
 
 
 @nb.njit
-def _xlogx_diff0_array(x, threshold=0, raise_error=False):
+def _xlogx_diff0_array(
+    x: FloatingArray, threshold: float = 0, raise_error: bool = False
+) -> FloatingArray:
     """Evaluate xlogx function for an array."""
     y = np.empty_like(x)
     for i in range(x.size):
@@ -81,7 +83,9 @@ def _xlogx_diff0_array(x, threshold=0, raise_error=False):
 
 
 @nb.njit
-def _xlogx_diff1_array(x, threshold=0, raise_error=False):
+def _xlogx_diff1_array(
+    x: FloatingArray, threshold: float = 0, raise_error: bool = False
+) -> FloatingArray:
     """Evaluate first derivative of xlogx function for an array."""
     y = np.empty_like(x)
     for i in range(x.size):
@@ -92,7 +96,9 @@ def _xlogx_diff1_array(x, threshold=0, raise_error=False):
 
 
 @nb.njit
-def _xlogx_diff2_array(x, threshold=0, raise_error=False):
+def _xlogx_diff2_array(
+    x: FloatingArray, threshold: float = 0, raise_error: bool = False
+) -> FloatingArray:
     """Evaluate second derivative of xlogx function for an array."""
     y = np.empty_like(x)
     for i in range(x.size):
@@ -110,11 +116,11 @@ def xlogx(
 
 @type_overload
 def xlogx(
-    x: ArrayLike,
+    x: FloatingArray,
     threshold: float = 0,
     diff: int | None = None,
     raise_error: bool = False,
-) -> NDArray[np.floating]: ...
+) -> FloatingArray: ...
 
 
 def xlogx(
@@ -148,20 +154,20 @@ def xlogx(
     """
     if np.isscalar(x):
         if diff == 0 or diff is None:
-            return _xlogx_diff0(x, threshold, raise_error=raise_error)
+            return _xlogx_diff0(x, threshold, raise_error=raise_error)  # type: ignore
         if diff == 1:
-            return _xlogx_diff1(x, threshold, raise_error=raise_error)
+            return _xlogx_diff1(x, threshold, raise_error=raise_error)  # type: ignore
         if diff == 2:
-            return _xlogx_diff2(x, threshold, raise_error=raise_error)
+            return _xlogx_diff2(x, threshold, raise_error=raise_error)  # type: ignore
         msg = "Only diff={0, 1, 2} is implemented"
         raise NotImplementedError(msg)
 
     if diff == 0 or diff is None:
-        return _xlogx_diff0_array(x, threshold=threshold, raise_error=raise_error)
+        return _xlogx_diff0_array(x, threshold=threshold, raise_error=raise_error)  # type: ignore
     if diff == 1:
-        return _xlogx_diff1_array(x, threshold=threshold, raise_error=raise_error)
+        return _xlogx_diff1_array(x, threshold=threshold, raise_error=raise_error)  # type: ignore
     if diff == 2:
-        return _xlogx_diff2_array(x, threshold=threshold, raise_error=raise_error)
+        return _xlogx_diff2_array(x, threshold=threshold, raise_error=raise_error)  # type: ignore
     msg = f"diff={diff} is not implemented"
     raise NotImplementedError(msg)
 
