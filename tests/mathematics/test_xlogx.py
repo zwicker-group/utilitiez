@@ -99,3 +99,51 @@ def test_xlogx_numba(threshold, diff):
         else:
             xlogx(val, diff=diff, threshold=threshold, raise_error=True)
         xlogx(val, diff=diff, threshold=threshold, raise_error=False)
+
+
+@pytest.mark.parametrize("threshold", [0, 1e-4, 0.1])
+@pytest.mark.parametrize("diff", [None, 0, 1, 2])
+def test_xlogx_jax(threshold, diff):
+    """Test the xlogx function and connected functions for the jax backend."""
+    pytest.importorskip("jax")
+    import jax.numpy as jnp
+
+    def get_value(x):
+        return xlogx(x, threshold=threshold, diff=diff)
+
+    assert get_value(jnp.array(0.0)) == pytest.approx(get_value(0.0))
+    assert get_value(jnp.array(1e-5)) == pytest.approx(get_value(1e-5))
+    assert get_value(jnp.array(1e-3)) == pytest.approx(get_value(1e-3))
+    assert get_value(jnp.array(0.5)) == pytest.approx(get_value(0.5))
+    x = np.array([0, 1e-5, 1e-3, 0.5])
+    np.testing.assert_allclose(get_value(jnp.array(x)), get_value(x))
+
+    for val in [jnp.array(-1), jnp.array([-0.5, 0.5])]:
+        if threshold == 0 and diff != 2:
+            with pytest.raises(ValueError):
+                xlogx(val, diff=diff, threshold=threshold, raise_error=True)
+        else:
+            xlogx(val, diff=diff, threshold=threshold, raise_error=True)
+        xlogx(val, diff=diff, threshold=threshold, raise_error=False)
+
+
+@pytest.mark.parametrize("threshold", [0, 1e-4, 0.1])
+@pytest.mark.parametrize("diff", [None, 0, 1, 2])
+def test_xlogx_jax_compiled(threshold, diff):
+    """Test the xlogx function and connected functions for the jax backend."""
+    jax = pytest.importorskip("jax")
+    import jax.numpy as jnp
+
+    def get_value(x):
+        return xlogx(x, threshold=threshold, diff=diff)
+
+    @jax.jit
+    def get_value_j(x):
+        return xlogx(x, threshold=threshold, diff=diff)
+
+    assert get_value_j(jnp.array(0.0)) == pytest.approx(get_value(0.0))
+    assert get_value_j(jnp.array(1e-5)) == pytest.approx(get_value(1e-5))
+    assert get_value_j(jnp.array(1e-3)) == pytest.approx(get_value(1e-3))
+    assert get_value_j(jnp.array(0.5)) == pytest.approx(get_value(0.5))
+    x = np.array([0, 1e-5, 1e-3, 0.5])
+    np.testing.assert_allclose(get_value_j(jnp.array(x)), get_value(x))
