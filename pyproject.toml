@@ -141,22 +141,11 @@ follow_imports_for_stubs = true
 
 [[tool.mypy.overrides]]
 module = [
-    "ffmpeg.*",
-    "h5py.*",
     "IPython.*",
-    "ipywidgets.*",
     "matplotlib.*",
     "mpl_toolkits.*",
     "mpi4py.*",
-    "napari.*",
-    "numba_mpi.*",
     "numpy.*",
     "pandas.*",
-    "pyfftw.*",
-    "pytest.*",
-    "qtpy.*",
-    "scipy.*",
-    "sympy.*",
-    "tqdm.*",
 ]
 ignore_missing_imports = true
