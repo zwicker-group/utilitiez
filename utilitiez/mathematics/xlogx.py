@@ -29,6 +29,15 @@ FloatingArray = NDArray[np.floating]
 FloatOrArray = float | FloatingArray
 
 
+def _raise_if_negative(x):
+    """Helper function to raise exceptions in jax backend."""
+    import jax.numpy as jnp
+
+    if jnp.any(x < 0):
+        msg = "xlogx expects non-negative values"
+        raise ValueError(msg)
+
+
 @register_jitable
 def _xlogx_diff0_scalar(
     x: float, threshold: float = 0, raise_error: bool = False
@@ -69,9 +78,8 @@ def _xlogx_diff0_jax(
     import jax.numpy as jnp
 
     if threshold == 0:
-        if raise_error and jnp.any(x < 0):
-            msg = "xlogx expects non-negative values"
-            raise ValueError(msg)
+        if raise_error:
+            jax.debug.callback(_raise_if_negative, x)
         return jnp.where(x > 0, x * jnp.log(x), jnp.where(x == 0, 0.0, jnp.nan))
 
     log_t = jnp.log(threshold)
@@ -118,9 +126,8 @@ def _xlogx_diff1_jax(
     import jax.numpy as jnp
 
     if threshold == 0:
-        if raise_error and jnp.any(x < 0):
-            msg = "xlogx expects non-negative values"
-            raise ValueError(msg)
+        if raise_error:
+            jax.debug.callback(_raise_if_negative, x)
         return jnp.where(x > 0, 1 + jnp.log(x), jnp.where(x == 0, -jnp.inf, jnp.nan))
 
     linearized = x / threshold + jnp.log(threshold)
@@ -191,8 +198,7 @@ def xlogx(
             Degree of differentiation of the expression. The default value `None`
             corresponds to `diff=0`.
         raise_error (bool):
-            If True, a ValueError is raised for non-positive values in case
-            threshold is 0.
+            If True and `threshold==0`, an error is raised for non-positive values.
 
     Returns:
         float: The result

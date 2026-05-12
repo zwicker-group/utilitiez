@@ -76,21 +76,26 @@ def test_xlogx_numpy(threshold):
             xlogx(val, diff=diff, threshold=threshold, raise_error=False)
 
 
-@pytest.mark.parametrize("threshold", [0, 1e-4, 0.1])
+@pytest.mark.parametrize(
+    ("threshold", "raise_error"), [(0, True), (0, False), (1e-4, False), (0.1, False)]
+)
 @pytest.mark.parametrize("diff", [None, 0, 1, 2])
-def test_xlogx_numba(threshold, diff):
+def test_xlogx_numba(threshold, raise_error, diff):
     """Test the xlogx function and connected functions."""
 
-    @nb.njit
     def get_value(x):
-        return xlogx(x, threshold=threshold, diff=diff)
+        return xlogx(x, threshold=threshold, diff=diff, raise_error=raise_error)
 
-    assert xlogx(0, threshold=threshold, diff=diff) == get_value(0)
-    assert xlogx(1e-5, threshold=threshold, diff=diff) == get_value(1e-5)
-    assert xlogx(1e-3, threshold=threshold, diff=diff) == get_value(1e-3)
-    assert xlogx(0.5, threshold=threshold, diff=diff) == get_value(0.5)
+    @nb.njit
+    def get_value_n(x):
+        return xlogx(x, threshold=threshold, diff=diff, raise_error=raise_error)
+
+    assert get_value(0) == get_value_n(0)
+    assert get_value(1e-5) == get_value_n(1e-5)
+    assert get_value(1e-3) == get_value_n(1e-3)
+    assert get_value(0.5) == get_value_n(0.5)
     x = np.array([0, 1e-5, 1e-3, 0.5])
-    np.testing.assert_allclose(xlogx(x, threshold=threshold, diff=diff), get_value(x))
+    np.testing.assert_allclose(get_value(x), get_value_n(x))
 
     for val in [-1, np.array([-0.5, 0.5])]:
         if threshold == 0 and diff != 2:
@@ -99,6 +104,12 @@ def test_xlogx_numba(threshold, diff):
         else:
             xlogx(val, diff=diff, threshold=threshold, raise_error=True)
         xlogx(val, diff=diff, threshold=threshold, raise_error=False)
+
+    if raise_error and diff != 2:
+        with pytest.raises(Exception):  # noqa: B017
+            get_value_n(-0.1)
+        with pytest.raises(Exception):  # noqa: B017
+            get_value_n(np.array([-0.1, 0.1]))
 
 
 @pytest.mark.parametrize("threshold", [0, 1e-4, 0.1])
@@ -127,19 +138,21 @@ def test_xlogx_jax(threshold, diff):
         xlogx(val, diff=diff, threshold=threshold, raise_error=False)
 
 
-@pytest.mark.parametrize("threshold", [0, 1e-4, 0.1])
+@pytest.mark.parametrize(
+    ("threshold", "raise_error"), [(0, True), (0, False), (1e-4, False), (0.1, False)]
+)
 @pytest.mark.parametrize("diff", [None, 0, 1, 2])
-def test_xlogx_jax_compiled(threshold, diff):
+def test_xlogx_jax_compiled(threshold, raise_error, diff):
     """Test the xlogx function and connected functions for the jax backend."""
     jax = pytest.importorskip("jax")
     import jax.numpy as jnp
 
     def get_value(x):
-        return xlogx(x, threshold=threshold, diff=diff)
+        return xlogx(x, threshold=threshold, diff=diff, raise_error=raise_error)
 
     @jax.jit
     def get_value_j(x):
-        return xlogx(x, threshold=threshold, diff=diff)
+        return xlogx(x, threshold=threshold, diff=diff, raise_error=raise_error)
 
     assert get_value_j(jnp.array(0.0)) == pytest.approx(get_value(0.0))
     assert get_value_j(jnp.array(1e-5)) == pytest.approx(get_value(1e-5))
@@ -147,3 +160,9 @@ def test_xlogx_jax_compiled(threshold, diff):
     assert get_value_j(jnp.array(0.5)) == pytest.approx(get_value(0.5))
     x = np.array([0, 1e-5, 1e-3, 0.5])
     np.testing.assert_allclose(get_value_j(jnp.array(x)), get_value(x))
+
+    if raise_error and diff != 2:
+        with pytest.raises(Exception):  # noqa: B017
+            get_value_j(jnp.array(-0.1))
+        with pytest.raises(Exception):  # noqa: B017
+            get_value_j(jnp.array([-0.1, 0.1]))
