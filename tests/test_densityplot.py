@@ -136,7 +136,7 @@ def test_weird_scaling(rng):
 def test_inverted_scaling():
     """Test density plots with inverted axes."""
     x = np.linspace(0, 3, 6)[::-1]
-    y = np.geomspace(1, 1e2, 4)[::-1]
+    y = np.geomspace(1, 1e3, 4)[::-1]
     data = np.sin(x[:, np.newaxis] * y[np.newaxis, :])
 
     densityplot(data, x, y)
