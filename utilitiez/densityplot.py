@@ -36,7 +36,7 @@ def get_scale(x: np.ndarray) -> tuple[ScaleType, np.ndarray]:
     x_d = x[1:] - x[:-1]
     if np.allclose(x_d, x_d.mean()):
         dx = x_d.mean() / 2
-        quads = np.linspace(x.min() - dx, x.max() + dx, len(x) + 1)
+        quads = np.linspace(x[0] - dx, x[-1] + dx, len(x) + 1)
         return "linear", quads
 
     if np.all(x > 0) or np.all(x < 0):
@@ -45,7 +45,7 @@ def get_scale(x: np.ndarray) -> tuple[ScaleType, np.ndarray]:
         x_d = x_log[1:] - x_log[:-1]
         if np.allclose(x_d, x_d.mean()):
             dx = np.exp(x_d.mean() / 2)
-            quads = np.geomspace(x.min() / dx, x.max() * dx, len(x) + 1)
+            quads = np.geomspace(x[0] / dx, x[-1] * dx, len(x) + 1)
             return "log", quads
 
     x_ = (x[1:] + x[:-1]) / 2  # get mid points
@@ -94,6 +94,16 @@ def densityplot(
         file size and avoid some problems with PDF readers. To have images with
         sufficient quality, set a high DPI value when saving, e.g., by using
         :code:`plt.savefig("fig.pdf", dpi=300)`.
+
+    Example:
+
+        .. code-block:: python
+
+            x = np.linspace(0, 1)
+            y = np.linspace(0, 1)
+            xs, ys = np.meshgrid(x, y, indexing="ij")
+            zs = np.sin(xs)
+            utilitiez.densityplot(zs, x, y)
 
     Args:
         data (ArrayLike):
