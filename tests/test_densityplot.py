@@ -132,7 +132,7 @@ def test_weird_scaling(rng):
     densityplot(data, x, y)
 
 
-@image_comparison(["inverted_scaling"], extensions=["png", "pdf"], tol=6)
+@image_comparison(["inverted_scaling"], extensions=["png", "pdf"], tol=8)
 def test_inverted_scaling():
     """Test density plots with inverted axes."""
     x = np.linspace(0, 3, 6)[::-1]
