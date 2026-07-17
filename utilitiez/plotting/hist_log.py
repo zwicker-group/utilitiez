@@ -12,7 +12,6 @@ import warnings
 
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib import patches as mpatches
 from numpy.typing import ArrayLike
 
 
@@ -23,7 +22,7 @@ def hist_log(
     *,
     ax=None,
     **kwargs,
-) -> mpatches.StepPatch:
+):
     """Plots a histogram with logarithmic bin widths.
 
     Args:
@@ -58,9 +57,13 @@ def hist_log(
 
     if isinstance(bins, (int, str)):
         # determine logarithmically spaced bin edges automatically
-        if range is not None:
-            range = [np.log(v) for v in range]  # noqa: A001
-        bin_edges_log = np.histogram_bin_edges(np.log(data_pos), bins=bins, range=range)
+        if range is None:
+            log_range = None
+        else:
+            log_range = (np.log(range[0]), np.log(range[1]))
+        bin_edges_log = np.histogram_bin_edges(
+            np.log(data_pos), bins=bins, range=log_range
+        )
         bin_edges = np.exp(bin_edges_log)
     else:
         bin_edges = bins
