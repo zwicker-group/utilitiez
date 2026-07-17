@@ -58,6 +58,8 @@ def hist_log(
 
     if isinstance(bins, (int, str)):
         # determine logarithmically spaced bin edges automatically
+        if range is not None:
+            range = [np.log(v) for v in range]  # noqa: A001
         bin_edges_log = np.histogram_bin_edges(np.log(data_pos), bins=bins, range=range)
         bin_edges = np.exp(bin_edges_log)
     else:

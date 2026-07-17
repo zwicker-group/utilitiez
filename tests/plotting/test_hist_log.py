@@ -24,6 +24,13 @@ def test_hist_bins():
     hist_log(data, bins=bins)
 
 
+@image_comparison(["hist_log_range"], extensions=["png", "pdf"], style="mpl20", tol=6)
+def test_hist_range():
+    """Test setting range in `hist_log`."""
+    data = np.linspace(1, 100, 100)
+    hist_log(data, range=[10, 100])
+
+
 @image_comparison(
     ["hist_log_negative"], extensions=["png", "pdf"], style="mpl20", tol=6
 )

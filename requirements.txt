@@ -1,4 +1,4 @@
-matplotlib
+matplotlib>=3.11
 numba
 numpy
 scipy
