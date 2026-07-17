@@ -19,5 +19,5 @@ except ImportError:
     del PackageNotFoundError, version  # clean name space
 
 # import the functions provided by the package
-from .densityplot import densityplot  # noqa: F401
 from .mathematics import *  # noqa: F403
+from .plotting import *  # noqa: F403

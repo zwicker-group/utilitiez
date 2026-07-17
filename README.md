@@ -11,6 +11,7 @@ Collection of useful python tools used in the [Zwicker group](https://zwickergro
 ## Plotting functions:
 - `densityplot` produced density plots from simulated data, optionally involving logarithmically scaled
 axes.
+- `hist_log` produces histograms of logarithmically scaled data
 
 ## Mathematical functions:
 - `xlogx` calculates $x \log(x)$ with correct limit for $x=0$ and optional linearization
