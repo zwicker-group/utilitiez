@@ -4,7 +4,8 @@
 """
 
 import numpy as np
-from matplotlib.testing.decorators import image_comparison
+import pytest
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 from utilitiez import hist_log
 
@@ -38,3 +39,25 @@ def test_hist_negative():
     """Test negative values in `hist_log`."""
     data = np.linspace(-1, 1, 100)
     hist_log(data)
+
+
+@image_comparison(["hist_double_log"], extensions=["png", "pdf"], style="mpl20", tol=6)
+def test_hist_double_log():
+    """Test double logarithmic plot."""
+    data = np.linspace(1, 100, 100)
+    hist_log(data, xlog=True, ylog=True)
+
+
+@check_figures_equal(extensions=["png", "pdf"], tol=6)
+def test_no_log(fig_test, fig_ref):
+    """Test plot without logarithmic scaling."""
+    data = np.linspace(1, 100, 100)
+    hist_log(data, xlog=False, ylog=False, ax=fig_test.gca())
+    fig_ref.gca().hist(data)
+
+
+def test_no_log_arg():
+    """Test that log arg cannot be used."""
+    data = np.linspace(1, 100, 100)
+    with pytest.raises(ValueError):
+        hist_log(data, log=True)

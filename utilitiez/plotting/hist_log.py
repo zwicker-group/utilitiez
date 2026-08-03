@@ -21,6 +21,8 @@ def hist_log(
     range: tuple[float, float] | None = None,  # noqa: A002
     *,
     ax=None,
+    xlog: bool = True,
+    ylog: bool = False,
     **kwargs,
 ):
     """Plots a histogram with logarithmic bin widths.
@@ -42,6 +44,10 @@ def hist_log(
             is based on the specified bin range instead of the range of x.
         ax (:class:`matplotlib.axes.Axes`, optional):
             The axes on which to plot. If None, the current axes will be used.
+        xlog (bool):
+            If False, the bins will be chosen linearly.
+        ylog (bool):
+            If True, the histogram y-axis will be set to a log scale.
         **kwargs:
             Additional parameters are forwarded to :func:`matplotlib.hist`
 
@@ -56,24 +62,33 @@ def hist_log(
         warnings.warn("Negative values are ignored", stacklevel=2)
 
     if isinstance(bins, (int, str)):
-        # determine logarithmically spaced bin edges automatically
-        if range is None:
-            log_range = None
+        if xlog:
+            # determine logarithmically spaced bin edges automatically
+            if range is None:
+                log_range = None
+            else:
+                log_range = (np.log(range[0]), np.log(range[1]))
+            bin_edges_log = np.histogram_bin_edges(
+                np.log(data_pos), bins=bins, range=log_range
+            )
+            bin_edges = np.exp(bin_edges_log)
         else:
-            log_range = (np.log(range[0]), np.log(range[1]))
-        bin_edges_log = np.histogram_bin_edges(
-            np.log(data_pos), bins=bins, range=log_range
-        )
-        bin_edges = np.exp(bin_edges_log)
+            # determine uniformly spaced bin edges automatically
+            bin_edges = np.histogram_bin_edges(data_pos, bins=bins, range=range)
     else:
         bin_edges = bins
 
-    # determine axes used for plotting
-    if ax is None:
-        plt_ax = plt.gca()
-    else:
-        plt_ax = ax
+    # set the y-scale correctly
+    if "log" in kwargs:
+        msg = "Argument `log` is ambigious. Use `xlog` or `ylog` instead."
+        raise ValueError(msg)
+    kwargs["log"] = ylog
 
+    # determine axes used for plotting
+    plt_ax = plt.gca() if ax is None else ax
+
+    # do the plot and set the scale of the y-axis
     plot = plt_ax.hist(data, bins=bin_edges, **kwargs)
-    plt_ax.set_xscale("log")
+    if xlog:
+        plt_ax.set_xscale("log")
     return plot
