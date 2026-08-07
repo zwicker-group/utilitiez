@@ -198,7 +198,9 @@ def xlogx(
             Degree of differentiation of the expression. The default value `None`
             corresponds to `diff=0`.
         raise_error (bool):
-            If True and `threshold==0`, an error is raised for non-positive values.
+            If True and `threshold==0`, an error is raised for non-positive values. Note
+            that this option can have severe performance impact in some backends (such
+            as `jax`).
 
     Returns:
         float: The result
