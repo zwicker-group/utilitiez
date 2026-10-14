@@ -76,7 +76,7 @@ def hist_log(
             # determine uniformly spaced bin edges automatically
             bin_edges = np.histogram_bin_edges(data_pos, bins=bins, range=range)
     else:
-        bin_edges = bins
+        bin_edges = np.asanyarray(bins)
 
     # set the y-scale correctly
     if "log" in kwargs:
@@ -88,7 +88,7 @@ def hist_log(
     plt_ax = plt.gca() if ax is None else ax
 
     # do the plot and set the scale of the y-axis
-    plot = plt_ax.hist(data, bins=bin_edges, **kwargs)
+    plot = plt_ax.hist(data, bins=bin_edges, **kwargs)  # type: ignore
     if xlog:
         plt_ax.set_xscale("log")
     return plot
